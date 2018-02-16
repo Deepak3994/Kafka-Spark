@@ -1,0 +1,152 @@
+package com.ericsson.inoc.alarms.streaming.consumer
+
+import java.util.{UUID, Properties}
+
+import kafka.serializer.StringDecoder
+import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.kafka.common.serialization.StringSerializer
+import kafka.message.DefaultCompressionCodec
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+
+import org.apache.spark.streaming._
+import org.apache.spark.SparkConf
+import org.apache.spark.streaming.kafka010._
+import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
+import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
+import org.apache.spark.sql.SparkSession
+
+import com.ericsson.inoc.alarms.streaming.common.AlarmsV2
+
+/**
+ * Consumes messages from one or more topics in Kafka and does wordcount.
+ * Usage: CustomKafkaSparkConsumerV3 <brokers> <topics>
+ *   <brokers> is a list of one or more Kafka brokers
+ *   <topics> is a list of one or more kafka topics to consume from
+ *
+ * Example:
+ *    $ bin/run-example streaming.CustomKafkaSparkConsumerV3 
+ */
+
+object CustomKafkaSparkConsumerV3 {
+
+     
+
+    // Create context with 2 second batch interval
+	
+	def main(args : Array[String]) {          
+	val sparkConf = new SparkConf()
+	sparkConf.setAppName("CustomKafkaSparkConsumerV3")
+	sparkConf.set("spark.kryo.registrator", "com.ericsson.inoc.alarms.streaming.consumer.CustomKryoRegistrator")
+	sparkConf.setMaster("local[*]")
+	sparkConf.set("spark.serializer","org.apache.spark.serializer.KryoSerializer")
+	val checkpointDirectory = "/home/neo/sources/StreamingCheckPointDir/ConsumerV3"
+	//val ssc = new StreamingContext(sparkConf, Seconds(2))
+
+	//def functionToCreateContext(): StreamingContext = {
+		val ssc = new StreamingContext(sparkConf, Seconds(2))   // new context
+		
+	    // Create direct kafka stream with brokers and topics
+		val topics = "some-topic,any-topic"
+		//val brokers = "localhost:9092"
+		val brokers = args(0)
+		val topicsSet = topics.split(",").toSet
+		
+		val kafkaParams = Map[String, Object](
+		"metadata.broker.list" -> brokers,
+		"key.deserializer" -> classOf[StringDeserializer],
+		"value.deserializer" -> classOf[com.ericsson.inoc.alarms.streaming.common.KryoCustSerializerV2],
+		"bootstrap.servers" -> "localhost:9092",
+		"group.id" -> "some-topic-consumer"
+		)
+
+	    //StreamingExamples.setStreamingLogLevels()
+
+		
+	    // PORTION THAT GETS EXECUTED EVERY 1 SECOND	
+	    //BEGIN
+    		
+		println("Dstreams got created .....")	
+	        val kafkaMessages = KafkaUtils.createDirectStream[String, AlarmsV2](ssc,PreferConsistent,Subscribe[String,AlarmsV2](topicsSet, kafkaParams))
+
+	
+	    	val alarms = kafkaMessages.map(record => (record.key, record.value))
+		val alvals = kafkaMessages.map(record => record.value)
+		
+		
+		val mvals = alvals.map(record => record.getMsgVal)
+		val sum = mvals.reduceByWindow(_+_,Seconds(10),Seconds(10))
+		sum.print()
+		val cnt = mvals.countByWindow(Seconds(10),Seconds(10))
+		cnt.print()
+
+
+	//PORTION THAT CREATES KAFKA PRODUCER WHICH SENDS WINDOWED SUM AND COUNT TO KAFKA SERVER ON sumTopic AND cntTopic RESPECTIVELY
+		//BEGIN
+		
+		
+		
+		sum.foreachRDD{rdd => 
+				rdd.foreachPartition( partition => {
+					val next_props = new Properties()
+
+					next_props.put("metadata.broker.list", brokers)
+					next_props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+					next_props.put("value.serializer","org.apache.kafka.common.serialization.StringSerializer")
+					next_props.put("client.id",UUID.randomUUID().toString())
+					next_props.put("compression.codec",DefaultCompressionCodec.codec.toString)
+					next_props.put("producer.type","async")
+					next_props.put("bootstrap.servers","localhost:9092")
+					next_props.put("group.id","other-topic-consumer")
+
+					val next_producer = new KafkaProducer[String, String](next_props);
+
+					partition.foreach(record => {
+						val msg = new ProducerRecord[String, String]("sumTopic", record.toString)
+						next_producer.send(msg) 
+					})
+				})
+		}
+		
+		
+		cnt.foreachRDD{rdd => 
+				rdd.foreachPartition( partition => {
+					val next_props = new Properties()
+
+					next_props.put("metadata.broker.list", brokers)
+					next_props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+					next_props.put("value.serializer","org.apache.kafka.common.serialization.StringSerializer")
+					next_props.put("client.id",UUID.randomUUID().toString())
+					next_props.put("compression.codec",DefaultCompressionCodec.codec.toString)
+					next_props.put("producer.type","async")
+					next_props.put("bootstrap.servers","localhost:9092")
+					next_props.put("group.id","other-topic-consumer")
+
+					val next_producer = new KafkaProducer[String, String](next_props);
+
+					partition.foreach(record => {
+						val msg = new ProducerRecord[String, String]("cntTopic", record.toString)
+						next_producer.send(msg) 
+					})
+				})
+		}
+
+
+
+		//END
+		
+	    //END
+		 ssc.checkpoint(checkpointDirectory)   // set checkpoint directory
+		//ssc
+
+	//}
+
+    // Get StreamingContext from checkpoint data or create a new one
+	//val context = StreamingContext.getOrCreate(checkpointDirectory, functionToCreateContext _)
+	//context.start()    
+	//context.awaitTermination()
+	ssc.start()
+	ssc.awaitTermination()
+	}
+}
+

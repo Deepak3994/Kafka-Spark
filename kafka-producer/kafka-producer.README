@@ -1,0 +1,21 @@
+# kafka-producer dir :
+----------------------
+
+--> This directory contains kafka-based producer classes definitions for various message class object formats using kryo serialization.
+--> For inbuilt library classes please refer build.sbt file
+
+)> ProducerApp2.scala : This producer class reads data from .csv file and generates Alarms objects and sends them to kafka-server on specific topic.
+
+	Related Classes :	Alarms.scala, KryoCustSerializer.scala, StringCustSerializer.scala, ConsumerApp2.scala, CustomKafkaSparkConsumer.scala, CustKryoRegistrator.scala.
+
+)> ProducerAppV2.scala : This producer class generates AlarmsV2 objects from system time and random integer data and sends them to kafka-server on specific topic.
+
+	Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, [ CustomKafkaSparkConsumerV2.scala - CustomKafkaSparkConsumerV8.scala ]
+
+)> ProducerAppV3.scala : This producer class generates AlarmsV3 objects from system time and random printable character data and sends them to kafka-server on specific topic.
+
+	Related Classes :	AlarmsV3.scala, KryoCustSerializerV3.scala
+
+)> ProducerAppV4.scala : This producer class generates AlarmsV3 objects from system time and random printable character data and sends them to kafka-server on specific topic.
+
+	Related Classes :	AlarmsV4.scala, KryoCustSerializerV4.scala

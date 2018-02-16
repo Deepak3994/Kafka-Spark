@@ -1,0 +1,80 @@
+# Objective : 
++++++++++++++
+
+	Simulation of kafka based producer and spark-kafka based consumer performing windowed PFP-Growth algorithm on dstreams. (with Spark)
+
+
+# Class files needed :
+++++++++++++++++++++++
+
+	Alarms.scala,	KryoCustSerializer.scala,	ProducerApp2.scala,	CustomKafkaSparkConsumerV11.scala
+
+
+# Scenario Description :
+++++++++++++++++++++++++
+
+	(1)->	ProducerApp2.scala generates Alarms(LASTOCCURENCE,NODE,NODETYPE,X733SPECIFICPROB) objects from .csv network data.
+	(2)->	ProducerApp2.scala publishes Alarms objects to kafka-server on topic "Alarm-Streams" where it uses KryoCustSerializer.scala to serialize Alarms objects.
+	(3)->	ProducerRecord's message-key field indicates SENT_TIME which is embedded with message before sending.
+	(3)->	CustomKafkaSparkConsumer.scala subscribes Alarms object streams from "Alarm-Streams" where it uses KryoCustSerializer.scala to deserialize Alarms objects.
+	(4)->	Converts alarms into transactions and prints as list of alarms through transaction windowing. --> Transaction Dstreams
+	(5)->	Then, these transaction dstreams again gets windowed for PFP-Growth implementation input.
+	(6)->	windowed count on AlarmsV2 object dstreams which results into another dstream of count.
+	(7)->	PFP-Growth gets implemented for every PFP-window (PFP-RDD).
+	(8)->	Then Frequent Patterns gets printed to the console at every PFP-interval along with support value.
+
+# Procedure for Simulating the example :
+++++++++++++++++++++++++++++++++++++++++
+
+
+)> STEP 1 : Start zookeeper server if not running
+
+	-> Open a new terminal.  
+
+	-> Go to kafka_2.11-0.10.1.0/bin directory.
+
+	-> Run following command.
+		$ ./zookeeper-server-start.sh ../config/zookeeper.properties 
+
+
+)> STEP 2 : Start kafka server if not running
+
+	-> Open a new terminal.  
+
+	-> Go to kafka_2.11-0.10.1.0/bin directory.
+
+	-> Run following command.
+		$ ./kafka-server-start.sh ../config/server.properties 
+
+
+
+)> STEP 3 : Compile kafka-common if not compiled
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/kafka-common directory.
+
+	-> Run following command.
+		$ sbt clean package
+
+
+)> STEP 4 : Start ProducerApp2.scala
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/scripts directory.
+
+	-> Run following command.
+		$ ./run-kafka-producer.sh
+
+
+)> STEP 5 : Start CustomKafkaSparkConsumerV11.scala
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/scripts directory.
+
+	-> Run following command.
+		$ ./run-spark-consumer-11.sh
+
+

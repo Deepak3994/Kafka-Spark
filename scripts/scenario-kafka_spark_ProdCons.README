@@ -1,0 +1,103 @@
+# Objective : 
++++++++++++++
+
+	Simulation of kafka based producer and spark-kafka based consumerand windowing operations on dstreams. (with Spark)
+
+
+# Class files needed :
+++++++++++++++++++++++
+
+	AlarmsV2.scala,	KryoCustSerializerV2.scala,	ProducerAppV2.scala,	CustomKafkaSparkConsumerV3.scala,	CustomKafkaSparkConsumerV4.scala,	CustomKafkaSparkConsumerV5.scala 
+
+
+# Scenario Description :
+++++++++++++++++++++++++
+
+	(1)->	ProducerAppV2.scala generates AlarmsV2(GEN_TIME,INT_DATA) objects from system date-time and random integer value generator.
+	(2)->	ProducerAppV2.scala publishes AlarmsV2 objects to kafka-server on topic "some-topic" where it uses KryoCustSerializerV2.scala to serialize AlarmsV2 objects.
+	(3)->	ProducerRecord's message-key field indicates SENT_TIME which is embedded with message before sending.
+	(3)->	CustomKafkaSparkConsumer3.scala subscribes AlarmsV2 object streams from "some-topic" where it uses KryoCustSerializerV2.scala to deserialize AlarmsV2 objects.
+	(4)->	Prints on console with (RECV_TIME, SENT_TIME, GEN_TIME, INT_DATA, NETWORK_DELAY)
+	(5)->	windowed sum on AlarmsV2 object dstreams which results into another dstream of sum.
+	(6)->	windowed count on AlarmsV2 object dstreams which results into another dstream of count.
+	(7)->	Creates Kafka-producer instance which sends sum dstream on sumTopic of kafka-server through StringSerializer.
+	(8)->	Creates Kafka-producer instance which sends cnt dstream on cntTopic of kafka-server through StringSerializer.
+	(9)->	CustomKafkaSparkConsumer4.scala subscribes sum (Int) objects streams from "sumTopic" where it uses StringDeserializer to deserialize sum (Int) objects and prints.
+	(10)->	CustomKafkaSparkConsumer5.scala subscribes count (Long) objects streams from "cntTopic" where it uses StringDeserializer to deserialize sum (Long) objects and prints.
+
+# Procedure for Simulating the example :
+++++++++++++++++++++++++++++++++++++++++
+
+NOTE : In this scenario, you may encounter "Kafka-Consumer is not safe for multithreaded environment" runtime exception. That is because per kafka-spark instance 2 threads are required. In this case while running ProducerAppV2 1 thread (per core) is assigned, for CustomKafkaSparkConsumerV3 2 (cosumer) + 2 (producer) and again 2,2 threads for CustomKafkaSparkConsumerV4 and CustomKafkaSparkConsumerV5. And threads may try to access critical region at same time and above runtime exception may occur. So it is advisable to run one of CustomKafkaSparkConsumerV4 or CustomKafkaSparkConsumerV5 at a time.
+
+)> STEP 1 : Start zookeeper server if not running
+
+	-> Open a new terminal.  
+
+	-> Go to kafka_2.11-0.10.1.0/bin directory.
+
+	-> Run following command.
+		$ ./zookeeper-server-start.sh ../config/zookeeper.properties 
+
+
+)> STEP 2 : Start kafka server if not running
+
+	-> Open a new terminal.  
+
+	-> Go to kafka_2.11-0.10.1.0/bin directory.
+
+	-> Run following command.
+		$ ./kafka-server-start.sh ../config/server.properties 
+
+
+
+)> STEP 3 : Compile kafka-common if not compiled
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/kafka-common directory.
+
+	-> Run following command.
+		$ sbt clean package
+
+
+)> STEP 4 : Start ProducerApp2.scala
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/scripts directory.
+
+	-> Run following command.
+		$ ./run-kafka-producer-v2.sh
+
+
+)> STEP 5 : Start CustomKafkaSparkConsumerV3.scala
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/scripts directory.
+
+	-> Run following command.
+		$ ./run-spark-consumer-v3.sh
+
+
+)> STEP 6 : Start CustomKafkaSparkConsumerV4.scala
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/scripts directory.
+
+	-> Run following command.
+		$ ./run-spark-consumer-v4.sh
+
+
+)> STEP 7 : Start CustomKafkaSparkConsumerV5.scala
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/scripts directory.
+
+	-> Run following command.
+		$ ./run-spark-consumer-v5.sh
+
+

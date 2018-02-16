@@ -1,0 +1,224 @@
+(1) Directory Structure :
+=========================
+
+
+										inoc-streaming
+											|
+											|
+	-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	|		|				|				|			|			|					|
+	docs		scripts				kafka-common			kafka-producer		kafka-consumer		spark-consumer				inoc-streaming.README
+	|		|				|				|			|			|				
+	ppts,		run-kafka-producer.sh,		Alarms.scala,			ProducerApp2.scala,	ConsumerApp2.scala	CustomKafkaSparkConsumer.scala,
+	pdfs,		run-kafka-producer-v2.sh,	AlarmsV2.scala,			ProducerAppV2.scala,				CustomKafkaSparkConsumerV2.scala,
+	notes,		run-kafka-producer-v3.sh,	AlarmsV3.scala,			ProducerAppV3.scala,				CustomKafkaSparkConsumerV3.scala,
+	videos,		run-kafka-consumer.sh,		AlarmsV4.scala,			ProducerAppV4.scala				CustomKafkaSparkConsumerV4.scala,
+	ebooks		run-spark-consumer.sh,		KryoCustSerializer.scala,							CustomKafkaSparkConsumerV5.scala,
+			run-spark-consumer-v2.sh,	KryoCustSerializerV2.scala,							CustomKafkaSparkConsumerV6.scala,
+			run-spark-consumer-v3.sh,	KryoCustSerializerV3.scala,							CustomKafkaSparkConsumerV7.scala,
+			run-spark-consumer-v4.sh,	StringCustSerializer.scala							CustomKafkaSparkConsumerV8.scala,
+			run-spark-consumer-v5.sh,											CustomKafkaSparkConsumerV9.scala,
+			run-spark-consumer-v6.sh,											CustomKafkaSparkConsumerV10.scala,
+			run-spark-consumer-v7.sh,											CustomKafkaSparkConsumerV11.scala,
+			run-spark-consumer-v8.sh,											CustKryoRegistrator.scala
+			run-spark-consumer-v9.sh,											
+			run-spark-consumer-v10.sh,											
+			run-spark-consumer-v811.sh,
+			scenario-kafka.README,
+			scenario-spark-dstream.README,
+			scenario-spark-strctured.README
+			
+
+
+
+
+(2) Environment Version Information :
+=====================================
+
+--> Apache Spark :	2.1.0 (Hadoop 2.7 compatible)
+--> Apache Kafka :	0.10.0.0
+--> Kryo Serializer :	4.0.0
+--> Apache Mesos :	1.0.0 (currently not used for below setup)
+
+
+
+(3) Directory/File Information :
+================================
+
+
+# docs dir :
+------------
+
+--> This directory contains conceptual understanding about big data computing frameworks such as Apache Spark, Apache Kafka, Apache Mesos and object serialization.
+--> It Includes configuration and deployment aspects of big data frameworks.
+--> It includes ppts, pdfs, notes, videos, ebooks to enclose above domains.
+
+
+# scripts dir :
+---------------
+
+--> This directory includes all shell-script files to run examples.
+
+
+# kafka-common dir :
+--------------------
+
+--> This directory contains class definitions which are common to kafka-producer, kafka-conusmer, spark-consumer classes.
+--> For inbuilt library classes please refer build.sbt file
+
+)> Alarms.scala : Alarms(LSTOCR,NODE,NODETYPE,X733SPECIFICPROB)
+
+)> AlarmsV2.scala : AlarmsV2(GEN_TIME,MSG_INT_DATA)
+
+)> AlarmsV3.scala : AlarmsV3(GEN_TIME,MSG_CHAR_DATA)
+
+)> AlarmsV4.scala : AlarmsV4(GEN_TIME,INVOICE_NO,ITEM)
+
+)> KryoCustSerializer.scala : For serializing/deserializing Alarms objects
+
+)> KryoCustSerializerV2.scala : For serializing/deserializing AlarmsV2 objects
+
+)> KryoCustSerializerV3.scala : For serializing/deserializing AlarmsV3 objects
+
+)> KryoCustSerializerV4.scala : For serializing/deserializing AlarmsV4 objects
+
+)> StringCustSerializer.scala : For serializing/deserialzing string variant of Alarms.scala (commented code in Alarms.scala)
+
+
+# kafka-producer dir :
+----------------------
+
+--> This directory contains kafka-based producer classes definitions for various message class object formats using kryo serialization.
+--> For inbuilt library classes please refer build.sbt file
+
+)> ProducerApp2.scala : This producer class reads data from .csv file and generates Alarms objects and sends them to kafka-server on specific topic.
+
+	Related Classes :	Alarms.scala, KryoCustSerializer.scala, StringCustSerializer.scala, ConsumerApp2.scala, CustomKafkaSparkConsumer.scala, CustKryoRegistrator.scala.
+
+)> ProducerAppV2.scala : This producer class generates AlarmsV2 objects from system time and random integer data and sends them to kafka-server on specific topic.
+
+	Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, [ CustomKafkaSparkConsumerV2.scala - CustomKafkaSparkConsumerV8.scala ]
+
+)> ProducerAppV3.scala : This producer class generates AlarmsV3 objects from system time and random printable character data and sends them to kafka-server on specific topic.
+
+	Related Classes :	AlarmsV3.scala, KryoCustSerializerV3.scala
+
+)> ProducerAppV4.scala : This producer class generates AlarmsV4 objects from system time and .csv data and sends them to kafka-server on specific topic.
+
+	Related Classes :	AlarmsV4.scala, KryoCustSerializerV4.scala
+
+# kafka-consumer dir :
+----------------------
+
+--> This directory contains only one class that implements kafka-consumer to receive Alarms objects produced by ProducerApp2.scala and prints them on the console.
+--> For inbuilt library classes please refer build.sbt file
+
+	Related Classes :	Alarms.scala, KryoCustSerializer.scala, StringCustSerializer.scala, ProducerApp2.scala, CustomKafkaSparkConsumer.scala, CustKryoRegistrator.scala.
+
+
+# spark-consumer dir :
+----------------------
+
+--> This directory contains various spark-kafka based consumer classes receiving streams of data and performing various streaming operations on them.
+--> For inbuilt library classes please refer build.sbt file
+
+
+)> CustomKafkaSparkConsumer.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	This consumer receives Alarms objects produced by ProducerApp2.scala and prints them on console.
+	+> Related Classes :	Alarms.scala, KryoCustSerializer.scala, StringCustSerializer.scala, ProducerApp2.scala, CustKryoRegistrator.scala.  
+
+
+)> CustKryoRegistrator.scala : (not used at present)
+
+	+> Type :		Kryo custom serializer registrator
+	+> Description :	This class is responsible for registering custom kryo serializer with Spark to overcome the serializer identification issue.
+				(may not be relavant with newer spark versions)
+	+> Related Classes :	Alarms.scala, KryoCustSerializer.scala, StringCustSerializer.scala, ProducerApp2.scala, CustomKafkaSparkConsumer.scala.  
+
+
+)> CustomKafkaSparkConsumerV2.scala :
+
+	+> Type :		Pure Consumer (Dstream + Structured)
+	+> Description :	-Dstream based windowed sum, count of AlarmsV2 objects.
+				-It converts dstreams into dataframes (Structured streaming) and performs aggregation (average) on each dataframe elements.
+				-Prints windowed dstream data on console as per the format (RECV_TIME, SENT_TIME, GEN_TIME, INT_DATA, NETWORK_DELAY)
+				-Prints Windowed Sum, Count, Average on console.
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, ProducerAppV2.scala.
+
+  
+)> CustomKafkaSparkConsumerV3.scala : 
+
+	+> Type :		A Consumer which is also a producer (Pure Dstream)
+	+> Description :	Windowed sum,count on AlarmsV2 dstreams and sending sum, count dstreams to kafka-server on sumTopic,cnTopic respectively.
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, ProducerAppV2.scala,CustomKafkaSparkConsumerV4.scala, CustomKafkaSparkConsumerV5.scala.
+	Note: this class publishes sum & count information into appropriate sumTopic and cntTopic. To read these messages, we have to run below V4 and V5 consumers.
+
+
+)> CustomKafkaSparkConsumerV4.scala : depends on an already running CustomKafkaSparkConsumerV3.scala
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	Receives dstreams from sumTopic produced by CustomKafkaSparkConsumerV3.scala.
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, CustomKafkaSparkConsumerV3.scala.
+
+
+)> CustomKafkaSparkConsumerV5.scala : depends on an already running  CustomKafkaSparkConsumerV3.scala
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	Receives dstreams from cntTopic produced by CustomKafkaSparkConsumerV3.scala.
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, CustomKafkaSparkConsumerV3.scala.
+
+
+)> CustomKafkaSparkConsumerV6.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	-Receives AlarmsV2 object dstreams.
+				Window API based
+				-Performs windowed sum and count.
+				-Joins two dstreams sum and count into one joined dstream.
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, ProducerAppV2.scala.
+
+
+)> CustomKafkaSparkConsumerV7.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+				Window API based
+	+> Description :	Performs windowed average on joined dstream of (sum,count)
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, ProducerAppV2.scala.
+
+
+)> CustomKafkaSparkConsumerV8.scala :
+
+	+> Type :		Pure Consumer (Dstream + Structured)
+	+> Description :	-Poll based windowing of dstreams. (Polling based windowing)
+				-Converting polled dstream data to dataframes of (RECV_TIME, SENT_TIME, GEN_TIME, INT_DATA, NETWORK_DELAY) format.
+				-Structured streaming based average of dstream data.
+				-Prints windowed dstream data on console as per the format (RECV_TIME, SENT_TIME, GEN_TIME, INT_DATA, NETWORK_DELAY)
+				-Prints  POLL_SUM, POLL_COUNT, POLL_MEAN on console.
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, ProducerAppV2.scala.
+
+
+)> CustomKafkaSparkConsumerV9.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	-Windowed FP-Growth on Streaming Alarms.
+				-Two Level Windowing : Transaction Window (small) and PFP-Window (Big) implementation.
+	+> Related Classes :	AlarmsV3.scala, KryoCustSerializerV3.scala, ProducerAppV3.scala.
+
+
+)> CustomKafkaSparkConsumerV10.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	-Windowed FP-Growth on Streaming Alarms.
+				-Two Level Windowing : Transaction Window (small) and PFP-Window (Big) implementation.
+	+> Related Classes :	AlarmsV4.scala, KryoCustSerializerV4.scala, ProducerAppV4.scala.
+
+
+)> CustomKafkaSparkConsumerV11.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	-Windowed FP-Growth on Streaming Alarms.
+				-Two Level Windowing : Transaction Window (small) and PFP-Window (Big) implementation.
+	+> Related Classes :	Alarms.scala, KryoCustSerializer.scala, ProducerApp2.scala,  CustKryoRegistrator.scala.
+

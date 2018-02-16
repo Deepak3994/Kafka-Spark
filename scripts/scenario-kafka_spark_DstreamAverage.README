@@ -1,0 +1,81 @@
+# Objective : 
++++++++++++++
+
+	Simulation of kafka based producer and spark-kafka based consumerand windowing operations on dstreams. (with Spark)
+
+
+# Class files needed :
+++++++++++++++++++++++
+
+	AlarmsV2.scala,	KryoCustSerializerV2.scala,	ProducerAppV2.scala,	CustomKafkaSparkConsumerV2.scala
+
+
+# Scenario Description :
+++++++++++++++++++++++++
+
+	(1)->	ProducerAppV2.scala generates AlarmsV2(GEN_TIME,INT_DATA) objects from system date-time and random integer value generator.
+	(2)->	ProducerAppV2.scala publishes AlarmsV2 objects to kafka-server on topic "some-topic" where it uses KryoCustSerializerV2.scala to serialize AlarmsV2 objects.
+	(3)->	ProducerRecord's message-key field indicates SENT_TIME which is embedded with message before sending.
+	(3)->	CustomKafkaSparkConsumer.scala subscribes AlarmsV2 object streams from "some-topic" where it uses KryoCustSerializerV2.scala to deserialize AlarmsV2 objects.
+	(4)->	Prints on console with (RECV_TIME, SENT_TIME, GEN_TIME, INT_DATA, NETWORK_DELAY)
+	(5)->	windowed sum on AlarmsV2 object dstreams which results into another dstream of sum.
+	(6)->	windowed count on AlarmsV2 object dstreams which results into another dstream of count.
+	(7)->	Dstream of sum (int type) --> sumDataframe (structured streaming)
+	(8)->	Dstream of count (long type) --> countDataframe (structured streaming)
+	(9)->	Average calculation for each dataframe elements and printing on the console.
+
+# Procedure for Simulating the example :
+++++++++++++++++++++++++++++++++++++++++
+
+
+)> STEP 1 : Start zookeeper server if not running
+
+	-> Open a new terminal.  
+
+	-> Go to kafka_2.11-0.10.1.0/bin directory.
+
+	-> Run following command.
+		$ ./zookeeper-server-start.sh ../config/zookeeper.properties 
+
+
+)> STEP 2 : Start kafka server if not running
+
+	-> Open a new terminal.  
+
+	-> Go to kafka_2.11-0.10.1.0/bin directory.
+
+	-> Run following command.
+		$ ./kafka-server-start.sh ../config/server.properties 
+
+
+
+)> STEP 3 : Compile kafka-common if not compiled
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/kafka-common directory.
+
+	-> Run following command.
+		$ sbt clean package
+
+
+)> STEP 4 : Start ProducerApp2.scala
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/scripts directory.
+
+	-> Run following command.
+		$ ./run-kafka-producer-v2.sh
+
+
+)> STEP 5 : Start CustomKafkaSparkConsumerV2.scala
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/scripts directory.
+
+	-> Run following command.
+		$ ./run-spark-consumer-v2.sh
+
+

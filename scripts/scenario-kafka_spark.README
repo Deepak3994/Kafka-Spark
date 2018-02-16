@@ -1,0 +1,79 @@
+# Objective : 
++++++++++++++
+
+	Simulation of kafka based producer and spark-kafka based consumer. (with Spark)
+
+
+# Class files needed :
+++++++++++++++++++++++
+
+	Alarms.scala,	KryoCustSerializer.scala,	StringCustSerializer.scala,	CustKryoRegistrator.scala,	ProducerApp2.scala,	CustomKafkaSparkConsumer.scala
+
+
+# Scenario Description :
+++++++++++++++++++++++++
+
+	(1)->	ProducerApp2.scala generates Alarms(LSTOCR, NODE, NODETYPE, X733SPECIFICPROB) objects from reading .csv file.
+	(2)->	ProducerApp2.scala publishes Alarms objects to kafka-server on topic "some-topic" where it uses KryoCustSerializer.scala to serialize Alarms objects.
+	(3)->	CustomKafkaSparkConsumer.scala subscribes Alarms object streams from "some-topic" where it uses KryoCustSerializer.scala to deserialize Alarms objects.
+		Spark needs to know about custom serializer implementation, so for that serializer needs to be registered through sparkConf parameters that requires CustKryoRegistrator class
+		(may not be reuqired for newer spark versions).  
+	(4)->	CustomKafkaSparkConsumer.scala prints Alarms objects to console continuously.
+
+
+# Procedure for Simulating the example :
+++++++++++++++++++++++++++++++++++++++++
+
+
+)> STEP 1 : Start zookeeper server if not running
+
+	-> Open a new terminal.  
+
+	-> Go to kafka_2.11-0.10.1.0/bin directory.
+
+	-> Run following command.
+		$ ./zookeeper-server-start.sh ../config/zookeeper.properties 
+
+
+)> STEP 2 : Start kafka server if not running
+
+	-> Open a new terminal.  
+
+	-> Go to kafka_2.11-0.10.1.0/bin directory.
+
+	-> Run following command.
+		$ ./kafka-server-start.sh ../config/server.properties 
+
+
+
+)> STEP 3 : Compile kafka-common if not compiled
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/kafka-common directory.
+
+	-> Run following command.
+		$ sbt clean package
+
+
+)> STEP 4 : Start ProducerApp2.scala
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/scripts directory.
+
+	-> Run following command.
+		$ ./run-kafka-producer.sh
+
+
+)> STEP 5 : Start CustomKafkaSparkConsumer.scala
+
+	-> Open a new terminal.  
+
+	-> Go to inoc-streaming/scripts directory.
+
+	-> Run following command.
+		$ ./run-spark-consumer.sh
+
+
+NOTE : StringCustSerilizer.scala can also be used for that Alarms.scala needs to be modified and respective code can be uncommented for String based serialization variant.

@@ -1,0 +1,104 @@
+# spark-consumer dir :
+----------------------
+
+--> This directory contains various spark-kafka based consumer classes receiving streams of data and performing various streaming operations on them.
+--> For inbuilt library classes please refer build.sbt file
+
+
+)> CustomKafkaSparkConsumer.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	This consumer receives Alarms objects produced by ProducerApp2.scala and prints them on console.
+	+> Related Classes :	Alarms.scala, KryoCustSerializer.scala, StringCustSerializer.scala, ProducerApp2.scala, CustKryoRegistrator.scala.  
+
+
+)> CustKryoRegistrator.scala :
+
+	+> Type :		Kryo custom serializer registrator
+	+> Description :	This class is responsible for registering custom kryo serializer with Spark to overcome the serializer identification issue.
+				(may not be relavant with newer spark versions)
+	+> Related Classes :	Alarms.scala, KryoCustSerializer.scala, StringCustSerializer.scala, ProducerApp2.scala, CustomKafkaSparkConsumer.scala.  
+
+
+
+)> CustomKafkaSparkConsumerV2.scala :
+
+	+> Type :		Pure Consumer (Dstream + Structured)
+	+> Description :	-Dstream based windowed sum, count of AlarmsV2 objects.
+				-It converts dstreams into dataframes (Structured streaming) and performs aggregation (average) on each dataframe elements.
+				-Prints windowed dstream data on console as per the format (RECV_TIME, SENT_TIME, GEN_TIME, INT_DATA, NETWORK_DELAY)
+				-Prints Windowed Sum, Count, Average on console.
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, ProducerAppV2.scala.
+
+  
+)> CustomKafkaSparkConsumerV3.scala :
+
+	+> Type :		A Consumer which is also a producer (Pure Dstream)
+	+> Description :	Windowed sum,count on AlarmsV2 dstreams and sending sum, count dstreams to kafka-server on sumTopic,cnTopic respectively.
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, ProducerAppV2.scala,CustomKafkaSparkConsumerV4.scala, CustomKafkaSparkConsumerV5.scala.
+
+
+)> CustomKafkaSparkConsumerV4.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	Receives dstreams from sumTopic produced by CustomKafkaSparkConsumerV3.scala.
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, CustomKafkaSparkConsumerV3.scala.
+
+
+)> CustomKafkaSparkConsumerV5.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	Receives dstreams from cntTopic produced by CustomKafkaSparkConsumerV3.scala.
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, CustomKafkaSparkConsumerV3.scala.
+
+
+)> CustomKafkaSparkConsumerV6.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	-Receives AlarmsV2 object dstreams.
+				-Performs windowed sum and count.
+				-Joins two dstreams sum and count into one joined dstream.
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, ProducerAppV2.scala.
+
+
+)> CustomKafkaSparkConsumerV7.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	Performs windowed average on joined dstream of (sum,count)
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, ProducerAppV2.scala.
+
+
+)> CustomKafkaSparkConsumerV8.scala :
+
+	+> Type :		Pure Consumer (Dstream + Structured)
+	+> Description :	-Poll based windowing of dstreams.
+				-Converting polled dstream data to dataframes of (RECV_TIME, SENT_TIME, GEN_TIME, INT_DATA, NETWORK_DELAY) format.
+				-Structured streaming based average of dstream data.
+				-Prints windowed dstream data on console as per the format (RECV_TIME, SENT_TIME, GEN_TIME, INT_DATA, NETWORK_DELAY)
+				-Prints  POLL_SUM, POLL_COUNT, POLL_MEAN on console.
+	+> Related Classes :	AlarmsV2.scala, KryoCustSerializerV2.scala, ProducerAppV2.scala.
+
+
+)> CustomKafkaSparkConsumerV9.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	-Windowed FP-Growth on Streaming Alarms.
+				-Two Level Windowing : Transaction Window (small) and PFP-Window (Big) implementation.
+	+> Related Classes :	AlarmsV3.scala, KryoCustSerializerV3.scala, ProducerAppV3.scala.
+
+
+)> CustomKafkaSparkConsumerV10.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	-Windowed FP-Growth on Streaming Alarms.
+				-Two Level Windowing : Transaction Window (small) and PFP-Window (Big) implementation.
+	+> Related Classes :	AlarmsV4.scala, KryoCustSerializerV4.scala, ProducerAppV4.scala.
+
+
+)> CustomKafkaSparkConsumerV11.scala :
+
+	+> Type :		Pure Consumer (Pure Dstream)
+	+> Description :	-Windowed FP-Growth on Streaming Alarms.
+				-Two Level Windowing : Transaction Window (small) and PFP-Window (Big) implementation.
+	+> Related Classes :	Alarms.scala, KryoCustSerializer.scala, ProducerApp2.scala,  CustKryoRegistrator.scala.
+

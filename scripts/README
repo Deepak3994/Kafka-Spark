@@ -1,0 +1,52 @@
+# Scripts dir :
++++++++++++++++
+
+
+-->	Scripts Directory contains all shell scripts to simulate various examples.
+
+-->	To start with, This directory also includes 5 scenario README files related to spark-kafka streaming. Please refer to the corresponding README file for step by step guidance 		for example simulation.
+
+-->	scenario README file breif overviews are as follows.
+
+	)> scenario-kafka : Pure Kafka based producer-consumer example.
+
+	)> scenario-kafka_spark : Kafka based producer and Spark-Kafka based consumer example.
+
+	)> scenario-kafka_spark_DstreamAverage : Kafka based producer and Spark-Kafka based consumer implementing spark-streaming window apis example. 
+
+	)> scenario-kafka_spark_StructuredAverage : Kafka based producer and Spark-Kafka based consumer implementing spark structured streaming apis example.
+
+	)> scenario-kafka_spark_ProdCons : Kafka based producer and Spark-Kafka based consumer which consumes data from producer and performs windowing operations on dstreams, then 						it becomes producer for those windowed dstreams and send those windowed dstream to the kafka server which further is consumed by 2 different 						Spark-kafka based consumers.
+
+v1 - running
+	pure kafka producer & consumer
+	no spark libraries involved
+	custom kryo serializer (applies for all versions below)
+
+v2 - running
+	same pure kafka producer as in v1
+		but the alarms are generated using alarms.csv file from iNOC
+	producer variant 
+		spark based consumer
+
+v3 - concurrent modification exception
+	same pure kafka producer as in v2
+	spark based consumer which is also producer i.e. the processed data is put onto output stream (back to kafka with different topic)
+	makes use of windowing
+     failure
+	??????
+
+v4
+	same pure kafka producer as in v2
+	spark based consumer - as in v3 consumer that produces new topic event streams
+	v4 spark based consumer is another layer of consumer here only listening to one of the topic as produced in v3
+	v3 spark based consumer should be running & producing for v4 to consume
+     reason that v4 runs but not v3 is
+	actions are performed sequentially in case of v3 which fails
+	in v4 actions are only to producer another message..
+
+v5
+	same as v4 but listents to another topic
+	i.e v4 and v5 can run in parallel along with v3 so that
+		v4 final consumer listens to topic1 (windowed sum)
+		v5 final consumer listens to topic2 (windowed count)
